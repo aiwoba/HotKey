@@ -16,5 +16,47 @@ namespace HotKey
         {
             InitializeComponent();
         }
+
+        /// 重载FromA中的WndProc函数
+        /// 监视Windows消息
+        /// 重载WndProc方法，用于实现热键响应
+        
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_HOTKEY = 0x0312;
+            //按快捷键 
+            switch (m.Msg)
+            {
+                case WM_HOTKEY:
+                    switch (m.WParam.ToInt32())
+                    {
+                        case 100:
+                            Clipboard.SetText(this.labelTest.Text);             
+                            break;
+                        case 101:   
+                            this.labelTest.Text = Clipboard.GetText();
+                            break;
+                    }
+                    break;
+            }
+            base.WndProc(ref m);
+        }
+
+        private void labelTest_MouseLeave(object sender, EventArgs e)
+        {
+
+            //注销Id号为100的热键设定
+            HotKeysManager.UnregisterHotKey(Handle, 100);
+            //注销Id号为101的热键设定
+            HotKeysManager.UnregisterHotKey(Handle, 101);
+        }
+
+        private void labelTest_MouseEnter(object sender, EventArgs e)
+        {
+            //注册热键Ctrl+C，Id号为100。。
+            HotKeysManager.RegisterHotKey(Handle, 100, HotKeysManager.KeyModifiers.Ctrl, Keys.C);
+            //注册热键Ctrl+V，Id号为101。
+            HotKeysManager.RegisterHotKey(Handle, 101, HotKeysManager.KeyModifiers.Ctrl, Keys.V);
+        }
     }
 }
